@@ -18,22 +18,30 @@ namespace Serilog.Sinks.File
 {
     static class RollingIntervalExtensions
     {
-        public static string GetFormat(this RollingInterval interval)
+        /// <summary>
+        ///     GetFormat with Regex string
+        /// </summary>
+        /// <returns>
+        ///     Item1 - format
+        ///     Item2 - regex string
+        /// </returns>
+        /// <exception cref="ArgumentException"></exception>
+        public static Tuple<string, string> GetFormat(this RollingInterval interval)
         {
             switch (interval)
             {
                 case RollingInterval.Infinite:
-                    return "";
+                    return new Tuple<string, string>("", "");
                 case RollingInterval.Year:
-                    return "yyyy";
+                    return new Tuple<string, string>("yyyy", "\\d{4}");
                 case RollingInterval.Month:
-                    return "yyyyMM";
+                    return new Tuple<string, string>("yyyy-MM", "\\d{4}-\\d{2}");
                 case RollingInterval.Day:
-                    return "yyyyMMdd";
+                    return new Tuple<string, string>("yyyy-MM-dd", "\\d{4}-\\d{2}-\\d{2}");
                 case RollingInterval.Hour:
-                    return "yyyyMMddHH";
+                    return new Tuple<string, string>("yyyy-MM-dd-HH", "\\d{4}-\\d{2}-\\d{2}-\\d{2}");
                 case RollingInterval.Minute:
-                    return "yyyyMMddHHmm";
+                    return new Tuple<string, string>("yyyy-MM-dd-HH-mm", "\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}");
                 default:
                     throw new ArgumentException("Invalid rolling interval");
             }
@@ -54,7 +62,8 @@ namespace Serilog.Sinks.File
                 case RollingInterval.Hour:
                     return new DateTime(instant.Year, instant.Month, instant.Day, instant.Hour, 0, 0, instant.Kind);
                 case RollingInterval.Minute:
-                    return new DateTime(instant.Year, instant.Month, instant.Day, instant.Hour, instant.Minute, 0, instant.Kind);
+                    return new DateTime(instant.Year, instant.Month, instant.Day, instant.Hour, instant.Minute, 0,
+                        instant.Kind);
                 default:
                     throw new ArgumentException("Invalid rolling interval");
             }

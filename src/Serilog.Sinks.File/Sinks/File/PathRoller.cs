@@ -31,7 +31,7 @@ namespace Serilog.Sinks.File
         readonly Regex _filenameMatcher;
 
         readonly RollingInterval _interval;
-        readonly string _periodFormat;
+        readonly Tuple<string, string> _periodFormat;
 
         public PathRoller(string path, RollingInterval interval)
         {
@@ -49,7 +49,7 @@ namespace Serilog.Sinks.File
             _filenameMatcher = new Regex(
                 "^" +
                 Regex.Escape(_filenamePrefix) +
-                "(?<" + PeriodMatchGroup + ">\\d{" + _periodFormat.Length + "})" +
+                "(?<" + PeriodMatchGroup + ">" + _periodFormat.Item2 +")" +
                 "(?<" + SequenceNumberMatchGroup + ">_[0-9]{3,}){0,1}" +
                 Regex.Escape(_filenameSuffix) +
                 "$",
@@ -66,7 +66,7 @@ namespace Serilog.Sinks.File
         {
             var currentCheckpoint = GetCurrentCheckpoint(date);
 
-            var tok = currentCheckpoint?.ToString(_periodFormat, CultureInfo.InvariantCulture) ?? "";
+            var tok = currentCheckpoint?.ToString(_periodFormat.Item1, CultureInfo.InvariantCulture) ?? "";
 
             if (sequenceNumber != null)
                 tok += "_" + sequenceNumber.Value.ToString("000", CultureInfo.InvariantCulture);
@@ -97,7 +97,7 @@ namespace Serilog.Sinks.File
                     var dateTimePart = periodGroup.Captures[0].Value;
                     if (DateTime.TryParseExact(
                         dateTimePart,
-                        _periodFormat,
+                        _periodFormat.Item1,
                         CultureInfo.InvariantCulture,
                         DateTimeStyles.None,
                         out var dateTime))
